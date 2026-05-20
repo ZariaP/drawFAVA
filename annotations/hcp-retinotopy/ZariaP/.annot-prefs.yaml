@@ -1,4 +1,4 @@
-figure_size: 598
+figure_size: 574
 style:
   V1 Foveal Point:
     color: '#8c8ce6'
@@ -133,7 +133,7 @@ style:
     markersize: 0
     visible: true
   0.5 Degrees Eccentricity:
-    color: '#8c8ce6'
+    color: '#9897e8'
     linestyle: solid
     linewidth: 2
     markersize: 1
@@ -163,7 +163,7 @@ style:
     markersize: 0
     visible: true
   null:
-    color: '#ffffff'
+    color: '#ff00dd'
     linestyle: solid
     linewidth: 3
     markersize: 4
