@@ -163,7 +163,7 @@ style:
     markersize: 0
     visible: true
   null:
-    color: '#ff00dd'
+    color: '#ff00ea'
     linestyle: solid
     linewidth: 3
     markersize: 4
