@@ -1,4 +1,4 @@
-figure_size: 574
+figure_size: 516
 style:
   V1 Foveal Point:
     color: '#8c8ce6'
@@ -163,7 +163,7 @@ style:
     markersize: 0
     visible: true
   null:
-    color: '#ff00ea'
+    color: '#fb00ff'
     linestyle: solid
     linewidth: 3
     markersize: 4
