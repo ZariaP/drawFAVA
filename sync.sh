@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ###############################################################################
-# Script to update the current branch from the repo and from the upstream.
+# Script to use git to add, commit, and push any new annotations.
 
 # Error handling:
 set -euo pipefail
@@ -10,55 +10,63 @@ REPO_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 # Go to that directory.
 cd "${REPO_DIR}"
 
-# First, see if the origin is already nbenlab
-ghaddr="`git remote get-url origin`"
-if echo "$ghaddr" | grep -q "git@github.com:nbenlab/drawFAVA"
-then echo "Your local repository appears to be cloned from nbenlab/drawFAVA"
-     echo "instead of from <your GitHub username>/drawFAVA. In order to use"
-     echo "this repository, you need to first fork nbenlab/drawFAVA repository"
-     echo "to your user account then clone the forked repository."
-     exit 1
-fi
+# Next: find all the files that need to be added or committed.
+#readarray -t FILES < <(git -C "annotations/" ls-files -m -o --exclude-standard)
 
-# Next, git pull!
-# First check if the repo is clean.
-if [ -n "`git status --porcelain | grep -v '^ \??'`" ]
+FILES=()
+while IFS= read -r -d '' file
+do ext="${file##*.}"
+   if [ "$ext" = "tsv" ]
+   then FILES+=("$file")
+   fi
+done < <(git -C "annotations/" ls-files -z -m -o --exclude-standard)
+if [ ${#FILES} -eq 0 ]
 then echo "-------------------------------------------------------------------"
-     echo "Your repository contains changed files. If you've edited"
-     echo 'annotations, try running the `bash sync.sh` script first.'
+     echo "No modified annotation files found!"
+     echo "Please make sure you ran the sync.sh script from the same directory"
+     echo 'you were in when you ran `docker compose up`.'
      exit 1
 fi
-# Next, do the pull.
+# Print a message about how many annotations:
 echo "-------------------------------------------------------------------"
-echo "Pulling from user repository..."
-if ! git pull --ff-only
+echo "Found ${#FILES[@]} annotation files."
+echo "Adding files to git repository..."
+echo ""
+# Add the annotations to git.
+for file in "${FILES[@]}"
+do git add annotations/"${file}"
+done
+
+# Commit everything.
+echo "-------------------------------------------------------------------"
+echo "Committing files..."
+echo ""
+if ! git commit -m"Annotations: `date -u -Iminutes`"
 then echo ""
-     echo "Git pull failed!"
-     echo "This likely means that something in your local GitHub repo isn't"
-     echo "committed. If you've edited annotations, try running the"
-     echo '`bash sync.sh` script first.'
+     echo "-------------------------------------------------------------------"
+     echo "Failed to commit!"
+     echo "Note that your files were successfully added to the git staging"
+     echo "area but could not be committed."
      exit 1
 fi
 
-# Git pull the upstream; if the upstream doesn't exist, add it first.
+# Run git push:
 echo ""
-if git remote -vv | grep -q '^upstream'
+echo "-------------------------------------------------------------------"
+echo "Files committed; pushing to GitHub..."
+echo ""
+if ! git push
 then echo "-------------------------------------------------------------------"
-     echo "Git upstream already found."
-else echo "-------------------------------------------------------------------"
-     echo "Adding nbenlab/drawFAVA upstream repository."
-     git remote add upstream git@github.com:nbenlab/drawFAVA
+     echo "Failed to push annotations to GitHub!"
+     echo "Note that your files were successfully added and committed, but"
+     echo "could not be pushed. This is usually because your local changes"
+     echo "are out of sync with your GitHub repository; this can happen,"
+     echo "for example, because you cloned a new copy of the repo and made"
+     echo "edits in both places."
+     exit 1
 fi
 
-# Fetch from upstream.
 echo ""
 echo "-------------------------------------------------------------------"
-echo "Checking nbenlab/drawFAVA for updates..."
-git fetch upstream main
-git merge --no-edit upstream/main
-
-echo ""
-echo "-------------------------------------------------------------------"
-echo "Success!"
-
+echo "Done!"
 exit 0
