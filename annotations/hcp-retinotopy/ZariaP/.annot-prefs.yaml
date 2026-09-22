@@ -109,10 +109,10 @@ style:
     markersize: 0
     visible: true
   V3a|b Outer:
-    color: '#8c8ce6'
+    color: '#968cde'
     linestyle: solid
     linewidth: 2
-    markersize: 0
+    markersize: 1
     visible: true
   V3a|b Inner Boundary:
     color: '#8c8ce6'
@@ -163,7 +163,7 @@ style:
     markersize: 0
     visible: true
   null:
-    color: '#ff00ea'
+    color: '#ff00dd'
     linestyle: solid
     linewidth: 3
     markersize: 4
